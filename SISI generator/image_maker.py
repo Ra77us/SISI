@@ -16,17 +16,19 @@ def interpolated_glyph(glyph, size):
     pixels_path = [ [ 255 for _ in range(size) ] for _ in range(size) ] # holds the path information
     pixels_time = [ [ 255 for _ in range(size) ] for _ in range(size) ] # holds the timing (speed information)
     pixels_ends = [ [ 255 for _ in range(size) ] for _ in range(size) ] # holds info about the endpoints of strokes
-
+    total = sum([len(stroke) for stroke in glyph])
+    time = 0
     for stroke in glyph:
         prev_x, prev_y = None, None
+        
         for i in range(0, len(stroke), 2):
             x = int(stroke[i] * size)
             y = int(stroke[i+1] * size)
-            time = int(i / len(stroke) * 255)
-
+            time += 2
+            time_col = int((time/total) * 255)
             # target pixel
             pixels_path[y][x] = 0
-            pixels_time[y][x] = time
+            pixels_time[y][x] = time_col
 
             # interpolation
             if prev_x is not None:
@@ -36,7 +38,7 @@ def interpolated_glyph(glyph, size):
                 steps_count = max(abs(delta_x), abs(delta_y))
                 for step in range(steps_count):
                         pixels_path[y + int(delta_y * step / steps_count)][x + int(delta_x * step / steps_count)] = 0
-                        pixels_time[y + int(delta_y * step / steps_count)][x + int(delta_x * step / steps_count)] = time
+                        pixels_time[y + int(delta_y * step / steps_count)][x + int(delta_x * step / steps_count)] = time_col
 
             # setup for next iteration
             prev_x = x
